@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"mime/multipart"
-	"os"
 	"path/filepath"
 
 	"github.com/backent/ai-golang/config"
@@ -110,26 +109,6 @@ func (implementation *AiServiceImplementation) StoreFileuploadFile(file multipar
 		log.Fatal(err)
 	}
 
-	// Return the uploaded file ID
+	// Return the uploaded file URI
 	return resFile.URI, nil
-}
-
-func uploadToGemini(ctx context.Context, client *genai.Client, path, mimeType string) string {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatalf("Error opening file: %v", err)
-	}
-	defer file.Close()
-
-	options := genai.UploadFileOptions{
-		DisplayName: path,
-		MIMEType:    mimeType,
-	}
-	fileData, err := client.UploadFile(ctx, "", file, &options)
-	if err != nil {
-		log.Fatalf("Error uploading file: %v", err)
-	}
-
-	log.Printf("Uploaded file %s as: %s", fileData.DisplayName, fileData.URI)
-	return fileData.URI
 }
