@@ -28,7 +28,7 @@ func InitializeRouter() *httprouter.Router {
 	aiServiceInterface := services_ai.NewAiServiceGemini()
 	storageServiceInterface := repositories_storage.NewStorageServiceLocalImplementation()
 	questionServiceInterface := services_question.NewQuestionServiceImplementation(aiServiceInterface, storageServiceInterface)
-	questionControllerInterface := controllers_question.NewQuestionControllerImplementation(questionServiceInterface)
+	questionControllerInterface := controllers_question.NewQuestionControllerImplementation(questionServiceInterface, repositoryAuthInterface)
 	router := libs.NewRouter(authControllerInterface, questionControllerInterface)
 	return router
 }
