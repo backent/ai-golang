@@ -10,8 +10,10 @@ import (
 	"github.com/backent/ai-golang/controllers/controllers_auth"
 	"github.com/backent/ai-golang/controllers/controllers_question"
 	"github.com/backent/ai-golang/libs"
+	"github.com/backent/ai-golang/repositories/repositories_auth"
 	"github.com/backent/ai-golang/repositories/repositories_storage"
 	"github.com/backent/ai-golang/services/services_ai"
+	"github.com/backent/ai-golang/services/services_auth"
 	"github.com/backent/ai-golang/services/services_question"
 	"github.com/google/wire"
 	"github.com/julienschmidt/httprouter"
@@ -20,7 +22,9 @@ import (
 // Injectors from injector.go:
 
 func InitializeRouter() *httprouter.Router {
-	authControllerInterface := controllers_auth.NewAuthControllerImplementation()
+	repositoryAuthInterface := repositories_auth.NewRepositoryAuthJWTImpl()
+	serviceAuthInterface := services_auth.NewServiceAuthImplementation(repositoryAuthInterface)
+	authControllerInterface := controllers_auth.NewAuthControllerImplementation(serviceAuthInterface)
 	aiServiceInterface := services_ai.NewAiServiceGemini()
 	storageServiceInterface := repositories_storage.NewStorageServiceLocalImplementation()
 	questionServiceInterface := services_question.NewQuestionServiceImplementation(aiServiceInterface, storageServiceInterface)
@@ -31,7 +35,7 @@ func InitializeRouter() *httprouter.Router {
 
 // injector.go:
 
-var AuthSet = wire.NewSet(controllers_auth.NewAuthControllerImplementation)
+var AuthSet = wire.NewSet(controllers_auth.NewAuthControllerImplementation, services_auth.NewServiceAuthImplementation, repositories_auth.NewRepositoryAuthJWTImpl)
 
 var QuestionSet = wire.NewSet(controllers_question.NewQuestionControllerImplementation, services_question.NewQuestionServiceImplementation)
 

@@ -45,19 +45,19 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 		Type:     genai.TypeObject,
 		Required: []string{"result"},
 		Properties: map[string]*genai.Schema{
-			"result": &genai.Schema{
+			"result": {
 				Type: genai.TypeArray,
 				Items: &genai.Schema{
 					Type:     genai.TypeObject,
 					Required: []string{"question", "options", "answer"},
 					Properties: map[string]*genai.Schema{
-						"question": &genai.Schema{
+						"question": {
 							Type: genai.TypeString,
 						},
-						"answer": &genai.Schema{
+						"answer": {
 							Type: genai.TypeString,
 						},
-						"options": &genai.Schema{
+						"options": {
 							Type: genai.TypeArray,
 							Items: &genai.Schema{
 								Type: genai.TypeString,

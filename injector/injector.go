@@ -7,8 +7,10 @@ import (
 	"github.com/backent/ai-golang/controllers/controllers_auth"
 	"github.com/backent/ai-golang/controllers/controllers_question"
 	"github.com/backent/ai-golang/libs"
+	"github.com/backent/ai-golang/repositories/repositories_auth"
 	"github.com/backent/ai-golang/repositories/repositories_storage"
 	"github.com/backent/ai-golang/services/services_ai"
+	"github.com/backent/ai-golang/services/services_auth"
 	"github.com/backent/ai-golang/services/services_question"
 	"github.com/google/wire"
 	"github.com/julienschmidt/httprouter"
@@ -16,6 +18,8 @@ import (
 
 var AuthSet = wire.NewSet(
 	controllers_auth.NewAuthControllerImplementation,
+	services_auth.NewServiceAuthImplementation,
+	repositories_auth.NewRepositoryAuthJWTImpl,
 )
 
 var QuestionSet = wire.NewSet(
