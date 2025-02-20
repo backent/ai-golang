@@ -3,6 +3,7 @@ package controllers_question
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/backent/ai-golang/helpers"
 	"github.com/backent/ai-golang/middlewares"
@@ -27,7 +28,7 @@ func NewQuestionControllerImplementation(question services_question.QuestionServ
 
 func (implementation *QuestionControllerImplementation) Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
-	middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface)
+	ctx = context.WithValue(ctx, "username", middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
 
 	const MAX_FILE = 10 << 20 // 20MB
 	err := r.ParseMultipartForm(MAX_FILE)
@@ -38,11 +39,12 @@ func (implementation *QuestionControllerImplementation) Create(w http.ResponseWr
 	file, fileHeader, err := r.FormFile("file")
 	helpers.PanicIfError(err)
 
-	request.Description = r.FormValue("description")
+	request.Amount, err = strconv.Atoi(r.FormValue("amount"))
+	helpers.PanicIfError(err)
 	request.File = file
 	request.FileHeader = fileHeader
 
-	data := implementation.QuestionServiceInterface.Create(request)
+	data := implementation.QuestionServiceInterface.Create(ctx, request)
 
 	webResponse := web.WebResponse{
 		Status: 200,

@@ -2,14 +2,14 @@ package services_ai
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"mime/multipart"
 	"path/filepath"
 
 	"github.com/backent/ai-golang/config"
 	"github.com/backent/ai-golang/helpers"
-	"github.com/backent/ai-golang/web/web_question"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
@@ -25,7 +25,7 @@ type Message struct {
 func NewAiServiceGemini() AiServiceInterface {
 	return &AiServiceImplementation{}
 }
-func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI string, description string) web_question.Result {
+func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI string, amount int) (string, error) {
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(config.GetGeminiAPIKey()))
@@ -82,19 +82,22 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 		},
 	}
 
+	description := fmt.Sprintf("Buatkan saya %d soal pilihan ganda dengan pertanyaan pada object 'question' dan pilihannya pada object 'option' dan kunci jawabannya pada object 'answer' dan penjelasannya pada object 'explanation'", amount)
 	resp, err := session.SendMessage(ctx, genai.Text(description))
 	if err != nil {
 		log.Fatalf("Error sending message: %v", err)
 	}
 
-	var data web_question.Result
+	var textResponse string
 
 	for _, part := range resp.Candidates[0].Content.Parts {
-		if text, ok := part.(genai.Text); ok {
-			json.Unmarshal([]byte(text), &data)
+		text, ok := part.(genai.Text)
+		if !ok {
+			return "", errors.New("error while getting response ai")
 		}
+		textResponse = string(text)
 	}
-	return data
+	return textResponse, nil
 }
 
 func (implementation *AiServiceImplementation) StoreFileuploadFile(file multipart.File, fileName string) (string, error) {

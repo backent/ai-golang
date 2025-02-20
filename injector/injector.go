@@ -8,6 +8,7 @@ import (
 	"github.com/backent/ai-golang/controllers/controllers_question"
 	"github.com/backent/ai-golang/libs"
 	"github.com/backent/ai-golang/repositories/repositories_auth"
+	"github.com/backent/ai-golang/repositories/repositories_question"
 	"github.com/backent/ai-golang/repositories/repositories_storage"
 	"github.com/backent/ai-golang/services/services_ai"
 	"github.com/backent/ai-golang/services/services_auth"
@@ -25,6 +26,7 @@ var AuthSet = wire.NewSet(
 var QuestionSet = wire.NewSet(
 	controllers_question.NewQuestionControllerImplementation,
 	services_question.NewQuestionServiceImplementation,
+	repositories_question.NewRepositoryQuestionImplementation,
 )
 
 var AiSet = wire.NewSet(
@@ -38,6 +40,7 @@ var RepositoriesSet = wire.NewSet(
 func InitializeRouter() *httprouter.Router {
 	wire.Build(
 		libs.NewRouter,
+		libs.NewDatabase,
 		RepositoriesSet,
 		AuthSet,
 		QuestionSet,

@@ -11,6 +11,7 @@ import (
 	"github.com/backent/ai-golang/controllers/controllers_question"
 	"github.com/backent/ai-golang/libs"
 	"github.com/backent/ai-golang/repositories/repositories_auth"
+	"github.com/backent/ai-golang/repositories/repositories_question"
 	"github.com/backent/ai-golang/repositories/repositories_storage"
 	"github.com/backent/ai-golang/services/services_ai"
 	"github.com/backent/ai-golang/services/services_auth"
@@ -27,7 +28,9 @@ func InitializeRouter() *httprouter.Router {
 	authControllerInterface := controllers_auth.NewAuthControllerImplementation(serviceAuthInterface)
 	aiServiceInterface := services_ai.NewAiServiceGemini()
 	storageServiceInterface := repositories_storage.NewStorageServiceLocalImplementation()
-	questionServiceInterface := services_question.NewQuestionServiceImplementation(aiServiceInterface, storageServiceInterface)
+	repositoryQuestionInterface := repositories_question.NewRepositoryQuestionImplementation()
+	db := libs.NewDatabase()
+	questionServiceInterface := services_question.NewQuestionServiceImplementation(aiServiceInterface, storageServiceInterface, repositoryQuestionInterface, db)
 	questionControllerInterface := controllers_question.NewQuestionControllerImplementation(questionServiceInterface, repositoryAuthInterface)
 	router := libs.NewRouter(authControllerInterface, questionControllerInterface)
 	return router
@@ -37,7 +40,7 @@ func InitializeRouter() *httprouter.Router {
 
 var AuthSet = wire.NewSet(controllers_auth.NewAuthControllerImplementation, services_auth.NewServiceAuthImplementation, repositories_auth.NewRepositoryAuthJWTImpl)
 
-var QuestionSet = wire.NewSet(controllers_question.NewQuestionControllerImplementation, services_question.NewQuestionServiceImplementation)
+var QuestionSet = wire.NewSet(controllers_question.NewQuestionControllerImplementation, services_question.NewQuestionServiceImplementation, repositories_question.NewRepositoryQuestionImplementation)
 
 var AiSet = wire.NewSet(services_ai.NewAiServiceGemini)
 

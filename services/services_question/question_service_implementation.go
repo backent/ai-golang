@@ -1,7 +1,13 @@
 package services_question
 
 import (
+	"context"
+	"database/sql"
+	"encoding/json"
+
 	"github.com/backent/ai-golang/helpers"
+	"github.com/backent/ai-golang/models"
+	"github.com/backent/ai-golang/repositories/repositories_question"
 	"github.com/backent/ai-golang/repositories/repositories_storage"
 	"github.com/backent/ai-golang/services/services_ai"
 	"github.com/backent/ai-golang/web/web_question"
@@ -10,22 +16,51 @@ import (
 type QuestionServiceImplementation struct {
 	services_ai.AiServiceInterface
 	repositories_storage.StorageServiceInterface
+	repositories_question.RepositoryQuestionInterface
+	*sql.DB
 }
 
-func NewQuestionServiceImplementation(ai services_ai.AiServiceInterface, storage repositories_storage.StorageServiceInterface) QuestionServiceInterface {
+func NewQuestionServiceImplementation(ai services_ai.AiServiceInterface, storage repositories_storage.StorageServiceInterface, question repositories_question.RepositoryQuestionInterface, sql *sql.DB) QuestionServiceInterface {
 	return &QuestionServiceImplementation{
-		AiServiceInterface:      ai,
-		StorageServiceInterface: storage,
+		AiServiceInterface:          ai,
+		StorageServiceInterface:     storage,
+		RepositoryQuestionInterface: question,
+		DB:                          sql,
 	}
 }
 
-func (implementation *QuestionServiceImplementation) Create(request web_question.QuestionPostRequest) web_question.Result {
-	err := implementation.StorageServiceInterface.SaveFile(request.File, request.FileHeader.Filename, "storage/pdf")
+func (implementation *QuestionServiceImplementation) Create(ctx context.Context, request web_question.QuestionPostRequest) web_question.Result {
+	tx, err := implementation.DB.Begin()
+	helpers.PanicIfError(err)
+	defer helpers.CommitOrRollback(tx)
+
+	err = implementation.StorageServiceInterface.SaveFile(request.File, request.FileHeader.Filename, "storage/pdf")
 	helpers.PanicIfError(err)
 	fileURI, err := implementation.AiServiceInterface.StoreFileuploadFile(request.File, request.FileHeader.Filename)
 	helpers.PanicIfError(err)
 
-	data := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Description)
+	textResponse, err := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Amount)
+	helpers.PanicIfError(err)
+	var username string
+	username, ok := ctx.Value("username").(string)
+	if !ok {
+		panic("wrong username type")
+	}
+
+	questionModel := models.Question{
+		Username:      username,
+		Amount:        request.Amount,
+		GeminiFileURI: fileURI,
+		Result:        textResponse,
+		FileName:      request.FileHeader.Filename,
+	}
+
+	_, err = implementation.RepositoryQuestionInterface.Create(ctx, tx, questionModel)
+	helpers.PanicIfError(err)
+
+	var data web_question.Result
+	err = json.Unmarshal([]byte(textResponse), &data)
+	helpers.PanicIfError(err)
 
 	return data
 }
