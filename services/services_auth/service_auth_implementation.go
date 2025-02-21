@@ -3,6 +3,7 @@ package services_auth
 import (
 	"strings"
 
+	"github.com/backent/ai-golang/exceptions"
 	"github.com/backent/ai-golang/helpers"
 	"github.com/backent/ai-golang/repositories/repositories_auth"
 	"github.com/backent/ai-golang/web/web_auth"
@@ -19,7 +20,7 @@ func NewServiceAuthImplementation(auth repositories_auth.RepositoryAuthInterface
 func (implementation *ServiceAuthImplementation) Login(request web_auth.AuthPostRequest) web_auth.AuthPostResponse {
 
 	if !checkUserExists(request.Username) {
-		return web_auth.AuthPostResponse{}
+		helpers.PanicIfError(exceptions.NewUnAuthorized("username not found"))
 	}
 
 	token, err := implementation.RepositoryAuthInterface.Issue(request.Username)

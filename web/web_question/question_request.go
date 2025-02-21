@@ -3,7 +3,8 @@ package web_question
 import "mime/multipart"
 
 type QuestionPostRequest struct {
-	Amount     int `json:"amount"`
+	Name       string `json:"name"`
+	Amount     int    `json:"amount"`
 	File       multipart.File
 	FileHeader *multipart.FileHeader
 }

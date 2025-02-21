@@ -6,6 +6,7 @@ var QuestionTable string = "questions"
 
 type Question struct {
 	Id            int64
+	Name          string
 	Username      string
 	Amount        int
 	GeminiFileURI string

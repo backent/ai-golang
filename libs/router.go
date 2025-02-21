@@ -1,13 +1,9 @@
 package libs
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/backent/ai-golang/controllers/controllers_auth"
 	"github.com/backent/ai-golang/controllers/controllers_question"
-	"github.com/backent/ai-golang/helpers"
-	"github.com/backent/ai-golang/web"
+	"github.com/backent/ai-golang/exceptions"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,14 +13,7 @@ func NewRouter(authController controllers_auth.AuthControllerInterface, question
 	router.POST("/login", authController.Login)
 	router.POST("/questions", questionController.Create)
 
-	router.PanicHandler = func(w http.ResponseWriter, r *http.Request, i interface{}) {
-		log.Panicln(i)
-		response := web.WebResponse{
-			Status: 500,
-			Data:   i,
-		}
-		helpers.ReturnJSON(w, response)
-	}
+	router.PanicHandler = exceptions.RouterPanicHandler
 
 	return router
 }

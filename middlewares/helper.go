@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 
+	"github.com/backent/ai-golang/exceptions"
 	"github.com/backent/ai-golang/helpers"
 	"github.com/backent/ai-golang/repositories/repositories_auth"
 )
@@ -11,7 +12,7 @@ func ValidateToken(ctx context.Context, repositoriesAuth repositories_auth.Repos
 	defer func() {
 		validateFail := recover()
 		if validateFail != nil {
-			panic("authorization invalid")
+			helpers.PanicIfError(exceptions.NewUnAuthorized("authorization invalid"))
 		}
 	}()
 	var tokenString string
@@ -19,12 +20,12 @@ func ValidateToken(ctx context.Context, repositoriesAuth repositories_auth.Repos
 
 	tokenString, ok := token.(string)
 	if !ok || tokenString == "" {
-		panic("authorization required")
+		helpers.PanicIfError(exceptions.NewUnAuthorized("authorization required"))
 	}
 
 	username, isValid := repositoriesAuth.Validate(tokenString)
 	if !isValid {
-		panic("authorization invalid")
+		helpers.PanicIfError(exceptions.NewUnAuthorized("authorization invalid"))
 	}
 	return username
 }

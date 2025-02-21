@@ -49,6 +49,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 
 	questionModel := models.Question{
 		Username:      username,
+		Name:          request.Name,
 		Amount:        request.Amount,
 		GeminiFileURI: fileURI,
 		Result:        textResponse,

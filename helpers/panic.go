@@ -1,6 +1,6 @@
 package helpers
 
-func PanicIfError(err error) {
+func PanicIfError(err interface{}) {
 	if err != nil {
 		panic(err)
 	}

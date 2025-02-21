@@ -1,6 +1,7 @@
 CREATE TABLE questions (
   id BIGINT NOT NULL AUTO_INCREMENT,
   username VARCHAR(50) NOT NULL,
+  name VARCHAR(190) NOT NULL,
   amount INT NOT NULL,
   gemini_file_uri VARCHAR(100) NOT NULL,
   file_name VARCHAR(100) NOT NULL,

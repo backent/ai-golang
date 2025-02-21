@@ -16,15 +16,16 @@ func NewRepositoryQuestionImplementation() RepositoryQuestionInterface {
 }
 func (implementation *RepositoryQuestionImplementation) Create(ctx context.Context, tx *sql.Tx, model models.Question) (models.Question, error) {
 	query := fmt.Sprintf(`INSERT INTO %s (
+	name,
 	username,
 	amount,
 	gemini_file_uri,
 	file_name,
 	result
-	) VALUES (?, ?, ?, ?, ?)
+	) VALUES (?, ?, ?, ?, ?, ?)
 	`, models.QuestionTable)
 
-	result, err := tx.ExecContext(ctx, query, model.Username, model.Amount, model.GeminiFileURI, model.FileName, model.Result)
+	result, err := tx.ExecContext(ctx, query, model.Name, model.Username, model.Amount, model.GeminiFileURI, model.FileName, model.Result)
 	if err != nil {
 		return model, err
 	}
