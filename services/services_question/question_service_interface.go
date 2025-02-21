@@ -8,4 +8,5 @@ import (
 
 type QuestionServiceInterface interface {
 	Create(ctx context.Context, request web_question.QuestionPostRequest) web_question.Result
+	GetAll(ctx context.Context) web_question.QuestionGetAllRequest
 }

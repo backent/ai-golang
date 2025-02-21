@@ -28,7 +28,7 @@ func NewQuestionControllerImplementation(question services_question.QuestionServ
 
 func (implementation *QuestionControllerImplementation) Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
-	ctx = context.WithValue(ctx, "username", middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
+	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
 
 	const MAX_FILE = 10 << 20 // 20MB
 	err := r.ParseMultipartForm(MAX_FILE)
@@ -39,12 +39,27 @@ func (implementation *QuestionControllerImplementation) Create(w http.ResponseWr
 	file, fileHeader, err := r.FormFile("file")
 	helpers.PanicIfError(err)
 
+	request.Name = r.FormValue("name")
 	request.Amount, err = strconv.Atoi(r.FormValue("amount"))
 	helpers.PanicIfError(err)
 	request.File = file
 	request.FileHeader = fileHeader
 
 	data := implementation.QuestionServiceInterface.Create(ctx, request)
+
+	webResponse := web.WebResponse{
+		Status: 200,
+		Data:   data,
+	}
+
+	helpers.ReturnJSON(w, webResponse)
+}
+
+func (implementation *QuestionControllerImplementation) GetAll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
+	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
+
+	data := implementation.QuestionServiceInterface.GetAll(ctx)
 
 	webResponse := web.WebResponse{
 		Status: 200,

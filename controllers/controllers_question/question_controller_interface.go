@@ -8,4 +8,5 @@ import (
 
 type QuestionControllerInterface interface {
 	Create(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	GetAll(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }

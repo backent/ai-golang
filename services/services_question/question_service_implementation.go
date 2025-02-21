@@ -65,3 +65,14 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 
 	return data
 }
+
+func (implementation *QuestionServiceImplementation) GetAll(ctx context.Context) web_question.QuestionGetAllRequest {
+	tx, err := implementation.DB.Begin()
+	helpers.PanicIfError(err)
+	defer helpers.CommitOrRollback(tx)
+
+	collections, err := implementation.RepositoryQuestionInterface.GetAll(ctx, tx)
+	helpers.PanicIfError(err)
+
+	return web_question.CollectionQuestionModelToQuestionGetAllRequest(collections)
+}

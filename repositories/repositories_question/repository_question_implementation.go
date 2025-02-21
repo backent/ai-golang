@@ -37,3 +37,25 @@ func (implementation *RepositoryQuestionImplementation) Create(ctx context.Conte
 
 	return model, nil
 }
+
+func (implementation *RepositoryQuestionImplementation) GetAll(ctx context.Context, tx *sql.Tx) ([]models.Question, error) {
+	query := fmt.Sprintf("SELECT id, name, amount FROM %s", models.QuestionTable)
+	rows, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var collections []models.Question
+
+	for rows.Next() {
+		var item models.Question
+		err = rows.Scan(&item.Id, &item.Name, &item.Amount)
+		if err != nil {
+			return nil, err
+		}
+		collections = append(collections, item)
+	}
+
+	return collections, nil
+}
