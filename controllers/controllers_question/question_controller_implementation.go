@@ -68,3 +68,20 @@ func (implementation *QuestionControllerImplementation) GetAll(w http.ResponseWr
 
 	helpers.ReturnJSON(w, webResponse)
 }
+
+func (implementation *QuestionControllerImplementation) GetById(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
+	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
+
+	id, err := strconv.Atoi(p.ByName("id"))
+	helpers.PanicIfError(err)
+
+	data := implementation.QuestionServiceInterface.GetById(ctx, id)
+
+	webResponse := web.WebResponse{
+		Status: 200,
+		Data:   data,
+	}
+
+	helpers.ReturnJSON(w, webResponse)
+}

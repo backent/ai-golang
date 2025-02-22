@@ -1,6 +1,10 @@
 package web_question
 
-import "github.com/backent/ai-golang/models"
+import (
+	"encoding/json"
+
+	"github.com/backent/ai-golang/models"
+)
 
 type QuestionGetAllRequestItem struct {
 	Id   int64  `json:"id"`
@@ -23,4 +27,27 @@ func CollectionQuestionModelToQuestionGetAllRequest(collection []models.Question
 	}
 
 	return collectionRequest
+}
+
+type QuestionGetByIdResponse struct {
+	Id       int64        `json:"id"`
+	Name     string       `json:"name"`
+	Amount   int          `json:"amount"`
+	FileName string       `json:"file_name"`
+	Result   []ItemResult `json:"result"`
+}
+
+func QuestionModelToQuestionGetByIdResponse(model models.Question) (QuestionGetByIdResponse, error) {
+	var result Result
+	err := json.Unmarshal([]byte(model.Result), &result)
+	if err != nil {
+		return QuestionGetByIdResponse{}, err
+	}
+	return QuestionGetByIdResponse{
+		Id:       model.Id,
+		Name:     model.Name,
+		Amount:   model.Amount,
+		FileName: model.FileName,
+		Result:   result.Result,
+	}, nil
 }

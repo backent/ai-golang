@@ -59,3 +59,23 @@ func (implementation *RepositoryQuestionImplementation) GetAll(ctx context.Conte
 
 	return collections, nil
 }
+
+func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Context, tx *sql.Tx, id int) (models.Question, error) {
+	query := fmt.Sprintf("SELECT id, name, amount, file_name, result FROM %s WHERE id = ? LIMIT 1", models.QuestionTable)
+
+	var model models.Question
+	rows, err := tx.QueryContext(ctx, query, id)
+	if err != nil {
+		return model, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&model.Id, &model.Name, &model.Amount, &model.FileName, &model.Result)
+		if err != nil {
+			return model, err
+		}
+	}
+
+	return model, nil
+}

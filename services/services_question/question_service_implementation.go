@@ -3,7 +3,6 @@ package services_question
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 
 	"github.com/backent/ai-golang/helpers"
 	"github.com/backent/ai-golang/models"
@@ -29,7 +28,7 @@ func NewQuestionServiceImplementation(ai services_ai.AiServiceInterface, storage
 	}
 }
 
-func (implementation *QuestionServiceImplementation) Create(ctx context.Context, request web_question.QuestionPostRequest) web_question.Result {
+func (implementation *QuestionServiceImplementation) Create(ctx context.Context, request web_question.QuestionPostRequest) web_question.QuestionGetAllRequestItem {
 	tx, err := implementation.DB.Begin()
 	helpers.PanicIfError(err)
 	defer helpers.CommitOrRollback(tx)
@@ -42,7 +41,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 	textResponse, err := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Amount)
 	helpers.PanicIfError(err)
 	var username string
-	username, ok := ctx.Value("username").(string)
+	username, ok := ctx.Value(helpers.ContextKey("username")).(string)
 	if !ok {
 		panic("wrong username type")
 	}
@@ -56,14 +55,10 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 		FileName:      request.FileHeader.Filename,
 	}
 
-	_, err = implementation.RepositoryQuestionInterface.Create(ctx, tx, questionModel)
+	question, err := implementation.RepositoryQuestionInterface.Create(ctx, tx, questionModel)
 	helpers.PanicIfError(err)
 
-	var data web_question.Result
-	err = json.Unmarshal([]byte(textResponse), &data)
-	helpers.PanicIfError(err)
-
-	return data
+	return web_question.QuestionModelToQuestionGetAllRequestItem(question)
 }
 
 func (implementation *QuestionServiceImplementation) GetAll(ctx context.Context) web_question.QuestionGetAllRequest {
@@ -75,4 +70,18 @@ func (implementation *QuestionServiceImplementation) GetAll(ctx context.Context)
 	helpers.PanicIfError(err)
 
 	return web_question.CollectionQuestionModelToQuestionGetAllRequest(collections)
+}
+
+func (implementation *QuestionServiceImplementation) GetById(ctx context.Context, id int) web_question.QuestionGetByIdResponse {
+	tx, err := implementation.DB.Begin()
+	helpers.PanicIfError(err)
+	defer helpers.CommitOrRollback(tx)
+
+	model, err := implementation.RepositoryQuestionInterface.GetById(ctx, tx, id)
+	helpers.PanicIfError(err)
+
+	responseData, err := web_question.QuestionModelToQuestionGetByIdResponse(model)
+	helpers.PanicIfError(err)
+
+	return responseData
 }
