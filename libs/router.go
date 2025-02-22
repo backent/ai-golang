@@ -14,6 +14,7 @@ func NewRouter(authController controllers_auth.AuthControllerInterface, question
 	router.POST("/questions", questionController.Create)
 	router.GET("/questions", questionController.GetAll)
 	router.GET("/questions/:id", questionController.GetById)
+	router.DELETE("/questions/:id", questionController.DeleteById)
 
 	router.PanicHandler = exceptions.RouterPanicHandler
 

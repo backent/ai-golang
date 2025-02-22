@@ -85,3 +85,20 @@ func (implementation *QuestionControllerImplementation) GetById(w http.ResponseW
 
 	helpers.ReturnJSON(w, webResponse)
 }
+
+func (implementation *QuestionControllerImplementation) DeleteById(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
+	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
+
+	id, err := strconv.Atoi(p.ByName("id"))
+	helpers.PanicIfError(err)
+
+	implementation.QuestionServiceInterface.DeleteById(ctx, id)
+
+	webResponse := web.WebResponse{
+		Status: 200,
+		Data:   nil,
+	}
+
+	helpers.ReturnJSON(w, webResponse)
+}

@@ -85,3 +85,12 @@ func (implementation *QuestionServiceImplementation) GetById(ctx context.Context
 
 	return responseData
 }
+
+func (implementation *QuestionServiceImplementation) DeleteById(ctx context.Context, id int) {
+	tx, err := implementation.DB.Begin()
+	helpers.PanicIfError(err)
+	defer helpers.CommitOrRollback(tx)
+
+	err = implementation.RepositoryQuestionInterface.DeleteById(ctx, tx, id)
+	helpers.PanicIfError(err)
+}

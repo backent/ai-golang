@@ -79,3 +79,10 @@ func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Cont
 
 	return model, nil
 }
+
+func (implementation *RepositoryQuestionImplementation) DeleteById(ctx context.Context, tx *sql.Tx, id int) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", models.QuestionTable)
+	_, err := tx.ExecContext(ctx, query, id)
+
+	return err
+}
