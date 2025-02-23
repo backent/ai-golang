@@ -8,4 +8,5 @@ import (
 
 type AuthControllerInterface interface {
 	Login(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	CurrentUser(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }

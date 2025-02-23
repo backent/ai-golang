@@ -25,7 +25,7 @@ import (
 func InitializeRouter() *httprouter.Router {
 	repositoryAuthInterface := repositories_auth.NewRepositoryAuthJWTImpl()
 	serviceAuthInterface := services_auth.NewServiceAuthImplementation(repositoryAuthInterface)
-	authControllerInterface := controllers_auth.NewAuthControllerImplementation(serviceAuthInterface)
+	authControllerInterface := controllers_auth.NewAuthControllerImplementation(serviceAuthInterface, repositoryAuthInterface)
 	aiServiceInterface := services_ai.NewAiServiceGemini()
 	storageServiceInterface := repositories_storage.NewStorageServiceLocalImplementation()
 	repositoryQuestionInterface := repositories_question.NewRepositoryQuestionImplementation()
