@@ -3,6 +3,7 @@ package repositories_question
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/backent/ai-golang/models"
@@ -70,11 +71,13 @@ func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Cont
 	}
 	defer rows.Close()
 
-	for rows.Next() {
+	if rows.Next() {
 		err = rows.Scan(&model.Id, &model.Name, &model.Amount, &model.FileName, &model.Result)
 		if err != nil {
 			return model, err
 		}
+	} else {
+		return model, errors.New("not found")
 	}
 
 	return model, nil

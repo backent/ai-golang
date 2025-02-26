@@ -10,6 +10,7 @@ import (
 
 func RouterPanicHandler(w http.ResponseWriter, r *http.Request, i interface{}) {
 	var response web.WebResponse
+	// log.Printf("ERROR: %v\n%s", i, debug.Stack())
 
 	if err, ok := i.(validator.ValidationErrors); ok {
 		response = web.WebResponse{
