@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 var QuestionTable string = "questions"
 
@@ -15,4 +18,10 @@ type Question struct {
 	Exams         []Exam
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+type NullAbleExam struct {
+	Id       sql.NullInt64
+	Username sql.NullString
+	Score    sql.NullInt16
 }

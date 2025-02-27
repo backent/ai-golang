@@ -51,8 +51,12 @@ func QuestionModelToQuestionGetByIdResponse(model models.Question) (QuestionGetB
 		return QuestionGetByIdResponse{}, err
 	}
 	var studentAttempts []StudentAttemp
-	for _, item := range model.Exams {
-		studentAttempts = append(studentAttempts, examsToStudentAttemp(item))
+	if len(model.Exams) > 0 {
+		for _, item := range model.Exams {
+			studentAttempts = append(studentAttempts, examsToStudentAttemp(item))
+		}
+	} else {
+		studentAttempts = make([]StudentAttemp, 0)
 	}
 	return QuestionGetByIdResponse{
 		Id:              model.Id,

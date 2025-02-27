@@ -97,7 +97,7 @@ func (implementation *RepositoryQuestionImplementation) GetByIdWithExams(ctx con
 
 	for rows.Next() {
 		var rowDataQuestion models.Question
-		var rowDataExam models.Exam
+		var rowDataExam models.NullAbleExam
 		var questionData *models.Question
 		err = rows.Scan(&rowDataQuestion.Id, &rowDataQuestion.Name, &rowDataQuestion.Amount, &rowDataQuestion.FileName, &rowDataQuestion.Result, &rowDataExam.Id, &rowDataExam.Username, &rowDataExam.Score)
 		data, ok := mapQuestion[rowDataQuestion.Id]
@@ -107,7 +107,13 @@ func (implementation *RepositoryQuestionImplementation) GetByIdWithExams(ctx con
 		} else {
 			questionData = data
 		}
-		questionData.Exams = append(questionData.Exams, rowDataExam)
+		if rowDataExam.Id.Valid {
+			questionData.Exams = append(questionData.Exams, models.Exam{
+				Id:       rowDataExam.Id.Int64,
+				Username: rowDataExam.Username.String,
+				Score:    rowDataExam.Score.Int16,
+			})
+		}
 		if err != nil {
 			return models.Question{}, err
 		}
