@@ -1,7 +1,9 @@
 package exceptions
 
 import (
+	"log"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/backent/ai-golang/helpers"
 	"github.com/backent/ai-golang/web"
@@ -10,7 +12,7 @@ import (
 
 func RouterPanicHandler(w http.ResponseWriter, r *http.Request, i interface{}) {
 	var response web.WebResponse
-	// log.Printf("ERROR: %v\n%s", i, debug.Stack())
+	log.Printf("ERROR: %v\n%s", i, debug.Stack())
 
 	if err, ok := i.(validator.ValidationErrors); ok {
 		response = web.WebResponse{

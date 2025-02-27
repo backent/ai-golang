@@ -8,5 +8,6 @@ import (
 
 type ExamServiceInterface interface {
 	GetExamByQuestionId(ctx context.Context, id int) web_exam.ExamGetByQuestionIdResponse
+	GetExamById(ctx context.Context, id int) web_exam.ExamGetByQuestionIdResponse
 	Submit(ctx context.Context, request web_exam.ExamSubmitRequest)
 }

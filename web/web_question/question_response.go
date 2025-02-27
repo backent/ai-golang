@@ -30,11 +30,18 @@ func CollectionQuestionModelToQuestionGetAllRequest(collection []models.Question
 }
 
 type QuestionGetByIdResponse struct {
-	Id       int64        `json:"id"`
-	Name     string       `json:"name"`
-	Amount   int          `json:"amount"`
-	FileName string       `json:"file_name"`
-	Result   []ItemResult `json:"result"`
+	Id              int64           `json:"id"`
+	Name            string          `json:"name"`
+	Amount          int             `json:"amount"`
+	FileName        string          `json:"file_name"`
+	StudentAttempts []StudentAttemp `json:"student_attempts"`
+	Result          []ItemResult    `json:"result"`
+}
+
+type StudentAttemp struct {
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Score int16  `json:"score"`
 }
 
 func QuestionModelToQuestionGetByIdResponse(model models.Question) (QuestionGetByIdResponse, error) {
@@ -43,11 +50,24 @@ func QuestionModelToQuestionGetByIdResponse(model models.Question) (QuestionGetB
 	if err != nil {
 		return QuestionGetByIdResponse{}, err
 	}
+	var studentAttempts []StudentAttemp
+	for _, item := range model.Exams {
+		studentAttempts = append(studentAttempts, examsToStudentAttemp(item))
+	}
 	return QuestionGetByIdResponse{
-		Id:       model.Id,
-		Name:     model.Name,
-		Amount:   model.Amount,
-		FileName: model.FileName,
-		Result:   result.Result,
+		Id:              model.Id,
+		Name:            model.Name,
+		Amount:          model.Amount,
+		FileName:        model.FileName,
+		Result:          result.Result,
+		StudentAttempts: studentAttempts,
 	}, nil
+}
+
+func examsToStudentAttemp(model models.Exam) StudentAttemp {
+	return StudentAttemp{
+		Id:    model.Id,
+		Name:  model.Username,
+		Score: model.Score,
+	}
 }

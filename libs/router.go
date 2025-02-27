@@ -21,6 +21,7 @@ func NewRouter(
 	router.GET("/questions/:id", questionController.GetById)
 	router.DELETE("/questions/:id", questionController.DeleteById)
 	router.GET("/exams/:id", examController.GetByQuestionId)
+	router.GET("/exams-preview/:id", examController.GetById)
 	router.POST("/exams", examController.Submit)
 
 	router.PanicHandler = exceptions.RouterPanicHandler

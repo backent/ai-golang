@@ -83,6 +83,39 @@ func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Cont
 	return model, nil
 }
 
+func (implementation *RepositoryQuestionImplementation) GetByIdWithExams(ctx context.Context, tx *sql.Tx, id int) (models.Question, error) {
+	query := fmt.Sprintf("SELECT q.id, q.name, q.amount, q.file_name, q.result, e.id, e.username, e.score FROM %s q LEFT JOIN %s e ON q.id = e.question_id AND e.exam_at IS NOT NULL WHERE q.id = ?", models.QuestionTable, models.ExamTable)
+
+	var model models.Question
+	rows, err := tx.QueryContext(ctx, query, id)
+	if err != nil {
+		return model, err
+	}
+	defer rows.Close()
+
+	mapQuestion := make(map[int64]*models.Question)
+
+	for rows.Next() {
+		var rowDataQuestion models.Question
+		var rowDataExam models.Exam
+		var questionData *models.Question
+		err = rows.Scan(&rowDataQuestion.Id, &rowDataQuestion.Name, &rowDataQuestion.Amount, &rowDataQuestion.FileName, &rowDataQuestion.Result, &rowDataExam.Id, &rowDataExam.Username, &rowDataExam.Score)
+		data, ok := mapQuestion[rowDataQuestion.Id]
+		if !ok {
+			mapQuestion[rowDataQuestion.Id] = &rowDataQuestion
+			questionData = mapQuestion[rowDataQuestion.Id]
+		} else {
+			questionData = data
+		}
+		questionData.Exams = append(questionData.Exams, rowDataExam)
+		if err != nil {
+			return models.Question{}, err
+		}
+	}
+
+	return *mapQuestion[int64(id)], nil
+}
+
 func (implementation *RepositoryQuestionImplementation) DeleteById(ctx context.Context, tx *sql.Tx, id int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", models.QuestionTable)
 	_, err := tx.ExecContext(ctx, query, id)

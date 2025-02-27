@@ -40,6 +40,23 @@ func (implementation *ExamControllerImplementation) GetByQuestionId(w http.Respo
 	helpers.ReturnJSON(w, response)
 
 }
+
+func (implementation *ExamControllerImplementation) GetById(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
+	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
+
+	id, err := strconv.Atoi(p.ByName("id"))
+	helpers.PanicIfError(err)
+	data := implementation.ExamServiceInterface.GetExamById(ctx, id)
+
+	response := web.WebResponse{
+		Status: 200,
+		Data:   data,
+	}
+
+	helpers.ReturnJSON(w, response)
+
+}
 func (implementation *ExamControllerImplementation) Submit(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
 	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))

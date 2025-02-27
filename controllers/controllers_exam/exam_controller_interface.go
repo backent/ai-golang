@@ -8,5 +8,6 @@ import (
 
 type ExamControllerInterface interface {
 	GetByQuestionId(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	GetById(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	Submit(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }

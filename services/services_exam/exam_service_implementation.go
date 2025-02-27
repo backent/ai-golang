@@ -65,6 +65,21 @@ func (implementation *ExamServiceImplementation) GetExamByQuestionId(ctx context
 
 	return response
 }
+
+func (implementation *ExamServiceImplementation) GetExamById(ctx context.Context, id int) web_exam.ExamGetByQuestionIdResponse {
+	tx, err := implementation.DB.Begin()
+	helpers.PanicIfError(err)
+	defer helpers.CommitOrRollback(tx)
+
+	exam, err := implementation.ExamRepositoryInterface.FindById(ctx, tx, id)
+	helpers.PanicIfError(err)
+
+	response, err := web_exam.ExamModelToExamGetByQuestionIdResponse(exam)
+	helpers.PanicIfError(err)
+
+	return response
+}
+
 func (implementation *ExamServiceImplementation) Submit(ctx context.Context, request web_exam.ExamSubmitRequest) {
 	tx, err := implementation.DB.Begin()
 	helpers.PanicIfError(err)
@@ -87,12 +102,13 @@ func (implementation *ExamServiceImplementation) Submit(ctx context.Context, req
 		mappedSubmissionJson[itemJson.Question] = itemJson
 	}
 
-	var score int
+	var correctAnswerCount int
+	lenOfQuestions := len(mappedSubmissionJson)
 
 	for index, submission := range request.Submissions {
 		if targetQuestion, ok := mappedSubmissionJson[submission.Question]; ok {
 			if submission.UserAnswer == targetQuestion.Answer {
-				score++
+				correctAnswerCount++
 			}
 			request.Submissions[index].Answer = targetQuestion.Answer
 			request.Submissions[index].Explanation = targetQuestion.Explanation
@@ -106,7 +122,7 @@ func (implementation *ExamServiceImplementation) Submit(ctx context.Context, req
 		Username:    username,
 		QuestionId:  request.Id,
 		Submissions: string(submissionByte),
-		Score:       int16(score),
+		Score:       int16((float32(correctAnswerCount) / float32(lenOfQuestions)) * 100),
 	}
 
 	implementation.ExamRepositoryInterface.UpdateByQuestionIdAndUsername(ctx, tx, data)

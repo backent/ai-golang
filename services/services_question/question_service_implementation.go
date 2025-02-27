@@ -77,7 +77,7 @@ func (implementation *QuestionServiceImplementation) GetById(ctx context.Context
 	helpers.PanicIfError(err)
 	defer helpers.CommitOrRollback(tx)
 
-	model, err := implementation.RepositoryQuestionInterface.GetById(ctx, tx, id)
+	model, err := implementation.RepositoryQuestionInterface.GetByIdWithExams(ctx, tx, id)
 	helpers.PanicIfError(err)
 
 	responseData, err := web_question.QuestionModelToQuestionGetByIdResponse(model)

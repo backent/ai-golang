@@ -59,6 +59,29 @@ func (implementation *ExamRepositoryImplementation) FindByQuestionIdANDUsername(
 	return data, nil
 }
 
+func (implementation *ExamRepositoryImplementation) FindById(ctx context.Context, tx *sql.Tx, id int) (models.Exam, error) {
+	query := fmt.Sprintf("SELECT id, question_id, submissions, score, exam_at FROM %s WHERE id = ? LIMIT 1", models.ExamTable)
+
+	var data models.Exam
+
+	rows, err := tx.QueryContext(ctx, query, id)
+	if err != nil {
+		return data, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err = rows.Scan(&data.Id, &data.QuestionId, &data.Submissions, &data.Score, &data.ExamAt)
+		if err != nil {
+			return data, err
+		}
+	} else {
+		return data, errors.New("not found")
+	}
+
+	return data, nil
+}
+
 func (implementation *ExamRepositoryImplementation) UpdateByQuestionIdAndUsername(ctx context.Context, tx *sql.Tx, model models.Exam) (models.Exam, error) {
 	query := fmt.Sprintf("UPDATE %s SET score = ?, submissions = ?, exam_at = ? WHERE username = ? AND question_id = ?", models.ExamTable)
 

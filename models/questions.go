@@ -12,6 +12,7 @@ type Question struct {
 	GeminiFileURI string
 	FileName      string
 	Result        string
+	Exams         []Exam
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
