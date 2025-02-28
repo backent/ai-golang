@@ -82,7 +82,11 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 		},
 	}
 
-	description := fmt.Sprintf("Buatkan saya %d soal pilihan ganda dengan pertanyaan pada object 'question' dan pilihannya pada object 'option' dan kunci jawabannya pada object 'answer' dan penjelasannya pada object 'explanation'", amount)
+	description := fmt.Sprintf(`
+	Buatkan saya %d soal pilihan ganda dengan pertanyaan pada object 'question'
+	 dan pilihannya pada object 'option'
+	  dan kunci jawabannya pada object 'answer' dengan isian antara A,B,C atau D
+		 dan penjelasannya pada object 'explanation'`, amount)
 	if chapter != "" {
 		description += ". Dan berfokus pada " + chapter
 	}
