@@ -18,15 +18,16 @@ func NewRepositoryQuestionImplementation() RepositoryQuestionInterface {
 func (implementation *RepositoryQuestionImplementation) Create(ctx context.Context, tx *sql.Tx, model models.Question) (models.Question, error) {
 	query := fmt.Sprintf(`INSERT INTO %s (
 	name,
+	chapter,
 	username,
 	amount,
 	gemini_file_uri,
 	file_name,
 	result
-	) VALUES (?, ?, ?, ?, ?, ?)
+	) VALUES (?, ?, ?, ?, ?, ?, ?)
 	`, models.QuestionTable)
 
-	result, err := tx.ExecContext(ctx, query, model.Name, model.Username, model.Amount, model.GeminiFileURI, model.FileName, model.Result)
+	result, err := tx.ExecContext(ctx, query, model.Name, model.Chapter, model.Username, model.Amount, model.GeminiFileURI, model.FileName, model.Result)
 	if err != nil {
 		return model, err
 	}
@@ -62,7 +63,7 @@ func (implementation *RepositoryQuestionImplementation) GetAll(ctx context.Conte
 }
 
 func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Context, tx *sql.Tx, id int) (models.Question, error) {
-	query := fmt.Sprintf("SELECT id, name, amount, file_name, result FROM %s WHERE id = ? LIMIT 1", models.QuestionTable)
+	query := fmt.Sprintf("SELECT id, name, chapter, amount, file_name, result FROM %s WHERE id = ? LIMIT 1", models.QuestionTable)
 
 	var model models.Question
 	rows, err := tx.QueryContext(ctx, query, id)
@@ -72,7 +73,7 @@ func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Cont
 	defer rows.Close()
 
 	if rows.Next() {
-		err = rows.Scan(&model.Id, &model.Name, &model.Amount, &model.FileName, &model.Result)
+		err = rows.Scan(&model.Id, &model.Name, &model.Chapter, &model.Amount, &model.FileName, &model.Result)
 		if err != nil {
 			return model, err
 		}
@@ -84,7 +85,7 @@ func (implementation *RepositoryQuestionImplementation) GetById(ctx context.Cont
 }
 
 func (implementation *RepositoryQuestionImplementation) GetByIdWithExams(ctx context.Context, tx *sql.Tx, id int) (models.Question, error) {
-	query := fmt.Sprintf("SELECT q.id, q.name, q.amount, q.file_name, q.result, e.id, e.username, e.score FROM %s q LEFT JOIN %s e ON q.id = e.question_id AND e.exam_at IS NOT NULL WHERE q.id = ?", models.QuestionTable, models.ExamTable)
+	query := fmt.Sprintf("SELECT q.id, q.name, q.chapter, q.amount, q.file_name, q.result, e.id, e.username, e.score FROM %s q LEFT JOIN %s e ON q.id = e.question_id AND e.exam_at IS NOT NULL WHERE q.id = ?", models.QuestionTable, models.ExamTable)
 
 	var model models.Question
 	rows, err := tx.QueryContext(ctx, query, id)
@@ -99,7 +100,7 @@ func (implementation *RepositoryQuestionImplementation) GetByIdWithExams(ctx con
 		var rowDataQuestion models.Question
 		var rowDataExam models.NullAbleExam
 		var questionData *models.Question
-		err = rows.Scan(&rowDataQuestion.Id, &rowDataQuestion.Name, &rowDataQuestion.Amount, &rowDataQuestion.FileName, &rowDataQuestion.Result, &rowDataExam.Id, &rowDataExam.Username, &rowDataExam.Score)
+		err = rows.Scan(&rowDataQuestion.Id, &rowDataQuestion.Name, &rowDataQuestion.Chapter, &rowDataQuestion.Amount, &rowDataQuestion.FileName, &rowDataQuestion.Result, &rowDataExam.Id, &rowDataExam.Username, &rowDataExam.Score)
 		data, ok := mapQuestion[rowDataQuestion.Id]
 		if !ok {
 			mapQuestion[rowDataQuestion.Id] = &rowDataQuestion

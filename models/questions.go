@@ -11,6 +11,7 @@ type Question struct {
 	Id            int64
 	Name          string
 	Username      string
+	Chapter       string
 	Amount        int
 	GeminiFileURI string
 	FileName      string

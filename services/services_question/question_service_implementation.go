@@ -38,7 +38,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 	fileURI, err := implementation.AiServiceInterface.StoreFileuploadFile(request.File, request.FileHeader.Filename)
 	helpers.PanicIfError(err)
 
-	textResponse, err := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Amount)
+	textResponse, err := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Amount, request.Chapter)
 	helpers.PanicIfError(err)
 	var username string
 	username, ok := ctx.Value(helpers.ContextKey("username")).(string)
@@ -48,6 +48,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 
 	questionModel := models.Question{
 		Username:      username,
+		Chapter:       request.Chapter,
 		Name:          request.Name,
 		Amount:        request.Amount,
 		GeminiFileURI: fileURI,

@@ -40,6 +40,7 @@ func (implementation *QuestionControllerImplementation) Create(w http.ResponseWr
 	helpers.PanicIfError(err)
 
 	request.Name = r.FormValue("name")
+	request.Chapter = r.FormValue("chapter")
 	request.Amount, err = strconv.Atoi(r.FormValue("amount"))
 	helpers.PanicIfError(err)
 	request.File = file

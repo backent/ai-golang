@@ -25,7 +25,7 @@ type Message struct {
 func NewAiServiceGemini() AiServiceInterface {
 	return &AiServiceImplementation{}
 }
-func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI string, amount int) (string, error) {
+func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI string, amount int, chapter string) (string, error) {
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(config.GetGeminiAPIKey()))
@@ -83,6 +83,10 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 	}
 
 	description := fmt.Sprintf("Buatkan saya %d soal pilihan ganda dengan pertanyaan pada object 'question' dan pilihannya pada object 'option' dan kunci jawabannya pada object 'answer' dan penjelasannya pada object 'explanation'", amount)
+	if chapter != "" {
+		description += ". Dan berfokus pada " + chapter
+	}
+
 	resp, err := session.SendMessage(ctx, genai.Text(description))
 	if err != nil {
 		log.Fatalf("Error sending message: %v", err)
