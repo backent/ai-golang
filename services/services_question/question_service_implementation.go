@@ -48,7 +48,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 
 	questionModel := models.Question{
 		Username:      username,
-		Chapter:       request.Chapter,
+		Chapter:       sql.NullString{String: request.Chapter, Valid: request.Chapter != ""},
 		Name:          request.Name,
 		Amount:        request.Amount,
 		GeminiFileURI: fileURI,

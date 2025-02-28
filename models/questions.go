@@ -11,7 +11,7 @@ type Question struct {
 	Id            int64
 	Name          string
 	Username      string
-	Chapter       string
+	Chapter       sql.NullString
 	Amount        int
 	GeminiFileURI string
 	FileName      string
