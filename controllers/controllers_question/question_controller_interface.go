@@ -11,4 +11,5 @@ type QuestionControllerInterface interface {
 	GetAll(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	GetById(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	DeleteById(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	CheckMaterial(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }

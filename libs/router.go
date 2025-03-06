@@ -16,6 +16,7 @@ func NewRouter(
 
 	router.POST("/login", authController.Login)
 	router.POST("/questions", questionController.Create)
+	router.POST("/question-check-material", questionController.CheckMaterial)
 	router.GET("/current-user", authController.CurrentUser)
 	router.GET("/questions", questionController.GetAll)
 	router.GET("/questions/:id", questionController.GetById)

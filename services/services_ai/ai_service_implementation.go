@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"path/filepath"
 
@@ -30,7 +29,7 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(config.GetGeminiAPIKey()))
 	if err != nil {
-		log.Fatalf("Error creating client: %v", err)
+		return "", err
 	}
 	defer client.Close()
 
@@ -93,7 +92,7 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 
 	resp, err := session.SendMessage(ctx, genai.Text(description))
 	if err != nil {
-		log.Fatalf("Error sending message: %v", err)
+		return "", err
 	}
 
 	var textResponse string
@@ -114,15 +113,71 @@ func (implementation *AiServiceImplementation) StoreFileuploadFile(file multipar
 	// Create a Gemini AI client
 	client, err := genai.NewClient(ctx, option.WithAPIKey(config.GetGeminiAPIKey()))
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	defer client.Close()
 
 	resFile, err := client.UploadFileFromPath(ctx, filepath.Join(helpers.RootDir(), "storage/pdf/"+fileName), nil)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	// Return the uploaded file URI
 	return resFile.URI, nil
+}
+
+func (implementation *AiServiceImplementation) CheckFileMaterialExists(fileURI string, text string) (string, error) {
+	ctx := context.Background()
+
+	client, err := genai.NewClient(ctx, option.WithAPIKey(config.GetGeminiAPIKey()))
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	model := client.GenerativeModel("gemini-2.0-flash")
+
+	model.SetTemperature(1)
+	model.SetTopK(40)
+	model.SetTopP(0.95)
+	model.SetMaxOutputTokens(8192)
+	model.ResponseMIMEType = "application/json"
+	model.ResponseSchema = &genai.Schema{
+		Type:     genai.TypeObject,
+		Required: []string{"result"},
+		Properties: map[string]*genai.Schema{
+			"result": {
+				Type: genai.TypeBoolean,
+			},
+		},
+	}
+
+	session := model.StartChat()
+	session.History = []*genai.Content{
+		{
+			Role: "user",
+			Parts: []genai.Part{
+				genai.FileData{URI: fileURI},
+			},
+		},
+	}
+
+	description := fmt.Sprintf(`
+	Tolong di check apakah file tersebut mengandung materi %s`, text)
+
+	resp, err := session.SendMessage(ctx, genai.Text(description))
+	if err != nil {
+		return "", err
+	}
+
+	var textResponse string
+
+	for _, part := range resp.Candidates[0].Content.Parts {
+		text, ok := part.(genai.Text)
+		if !ok {
+			return "", errors.New("error while getting response ai")
+		}
+		textResponse = string(text)
+	}
+	return textResponse, nil
 }

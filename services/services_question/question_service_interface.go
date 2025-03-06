@@ -11,4 +11,5 @@ type QuestionServiceInterface interface {
 	GetAll(ctx context.Context) web_question.QuestionGetAllRequest
 	GetById(ctx context.Context, id int) web_question.QuestionGetByIdResponse
 	DeleteById(ctx context.Context, id int)
+	CheckMaterial(ctx context.Context, request web_question.QuestionCheckFileMaterialRequest) web_question.QuestionCheckMaterialResponse
 }

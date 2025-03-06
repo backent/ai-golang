@@ -3,6 +3,7 @@ package services_question
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/backent/ai-golang/helpers"
 	"github.com/backent/ai-golang/models"
@@ -94,4 +95,25 @@ func (implementation *QuestionServiceImplementation) DeleteById(ctx context.Cont
 
 	err = implementation.RepositoryQuestionInterface.DeleteById(ctx, tx, id)
 	helpers.PanicIfError(err)
+}
+
+func (implementation *QuestionServiceImplementation) CheckMaterial(ctx context.Context, request web_question.QuestionCheckFileMaterialRequest) web_question.QuestionCheckMaterialResponse {
+	tx, err := implementation.DB.Begin()
+	helpers.PanicIfError(err)
+	defer helpers.CommitOrRollback(tx)
+
+	err = implementation.StorageServiceInterface.SaveFile(request.File, request.FileHeader.Filename, "storage/pdf")
+	helpers.PanicIfError(err)
+	fileURI, err := implementation.AiServiceInterface.StoreFileuploadFile(request.File, request.FileHeader.Filename)
+	helpers.PanicIfError(err)
+
+	textResponseMaterial, err := implementation.AiServiceInterface.CheckFileMaterialExists(fileURI, request.Chapter)
+	helpers.PanicIfError(err)
+
+	var checkMaterialResponse web_question.QuestionCheckMaterialResponse
+
+	err = json.Unmarshal([]byte(textResponseMaterial), &checkMaterialResponse)
+	helpers.PanicIfError(err)
+
+	return checkMaterialResponse
 }

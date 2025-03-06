@@ -103,3 +103,31 @@ func (implementation *QuestionControllerImplementation) DeleteById(w http.Respon
 
 	helpers.ReturnJSON(w, webResponse)
 }
+
+func (implementation *QuestionControllerImplementation) CheckMaterial(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := context.WithValue(r.Context(), helpers.ContextKey("token"), r.Header.Get("Authorization"))
+	ctx = context.WithValue(ctx, helpers.ContextKey("username"), middlewares.ValidateToken(ctx, implementation.RepositoryAuthInterface))
+
+	const MAX_FILE = 10 << 20 // 20MB
+	err := r.ParseMultipartForm(MAX_FILE)
+	helpers.PanicIfError(err)
+
+	request := web_question.QuestionCheckFileMaterialRequest{}
+
+	file, fileHeader, err := r.FormFile("file")
+	helpers.PanicIfError(err)
+
+	request.Chapter = r.FormValue("chapter")
+	helpers.PanicIfError(err)
+	request.File = file
+	request.FileHeader = fileHeader
+
+	data := implementation.QuestionServiceInterface.CheckMaterial(ctx, request)
+
+	webResponse := web.WebResponse{
+		Status: 200,
+		Data:   data,
+	}
+
+	helpers.ReturnJSON(w, webResponse)
+}

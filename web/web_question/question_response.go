@@ -77,3 +77,7 @@ func examsToStudentAttemp(model models.Exam) StudentAttemp {
 		Score: model.Score,
 	}
 }
+
+type QuestionCheckMaterialResponse struct {
+	Result bool `json:"result"`
+}

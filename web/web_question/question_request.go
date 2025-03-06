@@ -9,3 +9,9 @@ type QuestionPostRequest struct {
 	File       multipart.File
 	FileHeader *multipart.FileHeader
 }
+
+type QuestionCheckFileMaterialRequest struct {
+	Chapter    string `json:"chapter"`
+	File       multipart.File
+	FileHeader *multipart.FileHeader
+}
