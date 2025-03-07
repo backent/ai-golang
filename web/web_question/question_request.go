@@ -5,6 +5,7 @@ import "mime/multipart"
 type QuestionPostRequest struct {
 	Name       string `json:"name"`
 	Chapter    string `json:"chapter"`
+	Language   string `json:"language"`
 	Amount     int    `json:"amount"`
 	File       multipart.File
 	FileHeader *multipart.FileHeader

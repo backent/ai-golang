@@ -24,7 +24,7 @@ type Message struct {
 func NewAiServiceGemini() AiServiceInterface {
 	return &AiServiceImplementation{}
 }
-func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI string, amount int, chapter string) (string, error) {
+func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI string, amount int, chapter string, language string) (string, error) {
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(config.GetGeminiAPIKey()))
@@ -88,6 +88,10 @@ func (implementation *AiServiceImplementation) MakeQuestionFromFile(fileURI stri
 		 dan penjelasannya pada object 'explanation'`, amount)
 	if chapter != "" {
 		description += ". Dan berfokus pada " + chapter
+	}
+
+	if language != "" {
+		description += ". Dengan bahasa yang mudah dipahami oleh anak " + language
 	}
 
 	resp, err := session.SendMessage(ctx, genai.Text(description))

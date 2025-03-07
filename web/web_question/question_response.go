@@ -32,6 +32,7 @@ func CollectionQuestionModelToQuestionGetAllRequest(collection []models.Question
 type QuestionGetByIdResponse struct {
 	Id              int64           `json:"id"`
 	Name            string          `json:"name"`
+	Language        string          `json:"language"`
 	Chapter         string          `json:"chapter"`
 	Amount          int             `json:"amount"`
 	FileName        string          `json:"file_name"`
@@ -62,6 +63,7 @@ func QuestionModelToQuestionGetByIdResponse(model models.Question) (QuestionGetB
 	return QuestionGetByIdResponse{
 		Id:              model.Id,
 		Name:            model.Name,
+		Language:        model.Language.String,
 		Chapter:         model.Chapter.String,
 		Amount:          model.Amount,
 		FileName:        model.FileName,

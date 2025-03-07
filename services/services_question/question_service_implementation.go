@@ -39,7 +39,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 	fileURI, err := implementation.AiServiceInterface.StoreFileuploadFile(request.File, request.FileHeader.Filename)
 	helpers.PanicIfError(err)
 
-	textResponse, err := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Amount, request.Chapter)
+	textResponse, err := implementation.AiServiceInterface.MakeQuestionFromFile(fileURI, request.Amount, request.Chapter, request.Language)
 	helpers.PanicIfError(err)
 	var username string
 	username, ok := ctx.Value(helpers.ContextKey("username")).(string)
@@ -50,6 +50,7 @@ func (implementation *QuestionServiceImplementation) Create(ctx context.Context,
 	questionModel := models.Question{
 		Username:      username,
 		Chapter:       sql.NullString{String: request.Chapter, Valid: request.Chapter != ""},
+		Language:      sql.NullString{String: request.Language, Valid: request.Language != ""},
 		Name:          request.Name,
 		Amount:        request.Amount,
 		GeminiFileURI: fileURI,

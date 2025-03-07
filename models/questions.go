@@ -11,6 +11,7 @@ type Question struct {
 	Id            int64
 	Name          string
 	Username      string
+	Language      sql.NullString
 	Chapter       sql.NullString
 	Amount        int
 	GeminiFileURI string
