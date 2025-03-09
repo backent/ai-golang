@@ -1,9 +1,10 @@
 package config
 
 import (
+	"log"
 	"os"
+	"runtime/debug"
 
-	"github.com/backent/ai-golang/helpers"
 	"github.com/joho/godotenv"
 )
 
@@ -11,7 +12,10 @@ var geminiAPI string
 
 func init() {
 	err := godotenv.Load()
-	helpers.PanicIfError(err)
+	if err != nil {
+		log.Printf("ERROR: %v\n%s", err, debug.Stack())
+	}
+
 	if geminiAPI == "" {
 		geminiAPI = os.Getenv("GEMINI_API_KEY")
 	}
