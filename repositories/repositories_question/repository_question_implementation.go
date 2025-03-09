@@ -42,7 +42,7 @@ func (implementation *RepositoryQuestionImplementation) Create(ctx context.Conte
 }
 
 func (implementation *RepositoryQuestionImplementation) GetAll(ctx context.Context, tx *sql.Tx) ([]models.Question, error) {
-	query := fmt.Sprintf("SELECT id, name, amount FROM %s", models.QuestionTable)
+	query := fmt.Sprintf("SELECT id, name, amount FROM %s ORDER BY id DESC", models.QuestionTable)
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
